@@ -43,7 +43,7 @@
 - 用途：遊戲中的 3D 姿勢引導角色
 - 發布位置：公開 GitHub 專案與 GitHub Pages 網站
 
-## 姿勢卡與音效
+## 姿勢卡與音訊
 
 - `public/assets/poses/*.png`：以內建 ImageGen 為本專案產生的五張原創引導插畫，沒有取用 SystemAnimatorOnline 素材。
-- 互動聲音：由 `src/lib/audio.ts` 在瀏覽器即時合成，不包含外部音訊檔。
+- 互動音效與「輕柔魔法森林」背景音樂：由 `src/lib/audio.ts` 在瀏覽器即時合成。音樂是為本專案編寫的原創鐘琴與和弦循環，約 72 BPM、無人聲，不包含外部音訊檔或第三方曲目。

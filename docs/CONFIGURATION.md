@@ -95,7 +95,7 @@ pnpm build
       "instruction": "雙腳站穩、背挺直，雙手自然放在身體兩旁。",
       "orientation": "front",
       "allowMirrored": true,
-      "scoreThreshold": 75,
+      "scoreThreshold": 50,
       "holdSeconds": 3,
       "minimumVisibility": 0.48,
       "constraints": [
@@ -272,9 +272,11 @@ Face Landmarker 只要求一張臉，回傳 blendshape 係數與 normalized face
 | 欄位 | 型別／範圍 | 說明 |
 | --- | --- | --- |
 | `defaultQuality` | `"high"` 或 `"low"` | 初次載入的粒子／動畫畫質 |
-| `audioEnabled` | boolean | 是否建立可播放的 Web Audio 音效 |
+| `audioEnabled` | boolean | 初始是否開啟 Web Audio 音效與背景音樂；既有靜音偏好仍優先 |
 
 使用者仍可由右上角切換畫質與靜音。靜音偏好會寫入 `magic-garden-yoga:muted`；畫質目前只保存在當次 React 狀態。作業系統 `prefers-reduced-motion: reduce` 會進一步降低動態效果。
+
+「聲音」按鈕同時控制提示音效與背景音樂。音效增益為原版的兩倍；背景音樂使用瀏覽器即時合成的原創魔法森林旋律，約 72 BPM、無人聲，音量低於提示音效，不需額外下載音訊。音樂從點擊「開始冒險」後播放至結果頁，回到準備頁或錯誤畫面時停止。隱藏分頁會停止音訊，返回時只恢復先前要求播放的音樂；靜音狀態不會自動解除。
 
 ## 每關姿勢欄位
 

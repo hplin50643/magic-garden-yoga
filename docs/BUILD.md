@@ -158,6 +158,15 @@ Remove-NetFirewallRule -DisplayName "Magic Garden Yoga Vite 5173"
 
 受控測試環境也可以由管理者把特定 HTTP origin 標記成安全來源，但這會降低瀏覽器原本的安全保護，只適合封閉、短期且明確知道風險的測試。不要要求一般使用者停用安全設定。
 
+若已選擇使用桌面 Chrome 的短期 HTTP 測試方式，可依 [Chromium 官方說明](https://www.chromium.org/Home/chromium-security/deprecating-powerful-features-on-insecure-origins/) 操作：
+
+1. 在開發機執行 `pnpm exec vite --host 0.0.0.0 --port 5173 --strictPort`，確認終端顯示的實際區網 IP。
+2. 在測試電腦開啟 `chrome://flags/#unsafely-treat-insecure-origin-as-secure`，僅填入本次測試的完整來源，例如 `http://192.168.0.172:5173`，啟用後重新啟動瀏覽器。
+3. 連到該網址，允許攝影機，確認全身入鏡後按「開始冒險」。山式目前門檻為 50 分、保持 3 秒；同時確認音效、背景音樂、靜音、切換分頁與重玩正常。
+4. 測試結束後移除該來源例外並恢復旗標預設值，再重新啟動瀏覽器；若另加了臨時防火牆規則，也一併移除。
+
+IP 可能隨網路連線改變，請以當次啟動結果為準。此例外僅用於受控區網測試，正式發布仍使用 HTTPS。
+
 此外，瀏覽器權限是以完整 origin 保存：協定、主機與連接埠任一改變，都可能需要重新允許攝影機。
 
 ## 品質檢查

@@ -68,7 +68,7 @@
       "instruction": "雙腳站穩、背挺直，雙手自然放在身體兩旁。",
       "orientation": "front",
       "allowMirrored": true,
-      "scoreThreshold": 73,
+      "scoreThreshold": 50,
       "minimumVisibility": 0.48,
       "constraints": [
         {

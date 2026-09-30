@@ -321,7 +321,7 @@ export function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const trackerRef = useRef<PoseTracker | null>(null);
   const avatarTrackerRef = useRef<AvatarMotionTracker | null>(null);
-  const audioRef = useRef(new GardenAudio(!muted));
+  const audioRef = useRef<GardenAudio | null>(null);
   const holdTrackerRef = useRef<HoldTracker | null>(null);
   const completionLockRef = useRef(false);
   const elapsedRef = useRef(0);
@@ -429,9 +429,14 @@ export function App() {
         if (!active) return;
         setConfig(loadedConfig);
         setQuality(loadedConfig.effects.defaultQuality);
-        audioRef.current = new GardenAudio(
-          loadedConfig.effects.audioEnabled && !muted,
+        audioRef.current?.dispose();
+        const audio = new GardenAudio(
+          loadedConfig.effects.audioEnabled &&
+            localStorage.getItem("magic-garden-yoga:muted") !== "true",
         );
+        audioRef.current = audio;
+        audio.setHidden(document.hidden);
+        setMuted(audio.isMuted);
         removeStaleLeaderboardChallenges(
           localStorage,
           loadedConfig.challengeId,
@@ -449,8 +454,34 @@ export function App() {
       });
     return () => {
       active = false;
+      audioRef.current?.dispose();
+      audioRef.current = null;
     };
   }, [refreshLeaderboard]);
+
+  useEffect(() => {
+    const syncAudioVisibility = () => {
+      audioRef.current?.setHidden(document.hidden);
+    };
+    document.addEventListener("visibilitychange", syncAudioVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", syncAudioVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      phase === "boot" ||
+      phase === "ready" ||
+      phase === "error" ||
+      vrmError ||
+      (!avatarDebugEnabled && (cameraError || trackingStatus === "error"))
+    ) {
+      audioRef.current?.stopMusic();
+    } else {
+      audioRef.current?.startMusic();
+    }
+  }, [avatarDebugEnabled, cameraError, phase, trackingStatus, vrmError]);
 
   useEffect(() => {
     if (!config || !videoRef.current || phase === "error") return;
@@ -548,12 +579,12 @@ export function App() {
           config.poses[0]?.holdSeconds ?? config.timing.defaultHoldSeconds,
         graceMs: config.timing.trackingGraceMs,
       });
-      audioRef.current.play("go");
+      audioRef.current?.play("go");
       dispatchGame({ type: "COUNTDOWN_FINISHED" });
       return;
     }
 
-    audioRef.current.play("countdown");
+    audioRef.current?.play("countdown");
     const timer = window.setTimeout(
       () => setCountdown((value) => value - 1),
       1000,
@@ -582,7 +613,7 @@ export function App() {
     setNickname("");
     setNameError("");
     refreshLeaderboard(config);
-    audioRef.current.play("finish");
+    audioRef.current?.play("finish");
     dispatchGame({
       type: "TRANSITION_FINISHED",
       challengeComplete: true,
@@ -623,9 +654,9 @@ export function App() {
       setTransitionTitle(skipped ? "休息一下，繼續前進！" : "太棒了，魔法成功！");
       dispatchGame({ type: "POSE_FINISHED", skipped });
       if (skipped) {
-        audioRef.current.play("tap");
+        audioRef.current?.play("tap");
       } else {
-        audioRef.current.play("success");
+        audioRef.current?.play("success");
       }
 
       if (transitionTimerRef.current !== null) {
@@ -688,7 +719,8 @@ export function App() {
 
   const startGame = () => {
     if (!config || !readyToStart) return;
-    audioRef.current.play("tap");
+    audioRef.current?.startMusic();
+    audioRef.current?.play("tap");
     setCurrentPoseIndex(0);
     setPoseScore(null);
     setHoldProgress(0);
@@ -702,7 +734,8 @@ export function App() {
   };
 
   const restartGame = () => {
-    audioRef.current.play("tap");
+    audioRef.current?.stopMusic();
+    audioRef.current?.play("tap");
     setCurrentPoseIndex(0);
     setPoseScore(null);
     setHoldProgress(0);
@@ -738,7 +771,9 @@ export function App() {
   };
 
   const toggleMute = () => {
-    const nextMuted = audioRef.current.toggleMuted();
+    const audio = audioRef.current;
+    if (!audio) return;
+    const nextMuted = audio.toggleMuted();
     setMuted(nextMuted);
     localStorage.setItem("magic-garden-yoga:muted", String(nextMuted));
   };
@@ -762,7 +797,7 @@ export function App() {
       setLeaderboard(entries);
       setScoreSaved(true);
       setNameError("");
-      audioRef.current.play("success");
+      audioRef.current?.play("success");
     } catch (error) {
       setNameError(error instanceof Error ? error.message : "暱稱無法儲存。");
     }
@@ -824,9 +859,10 @@ export function App() {
             className="icon-button"
             type="button"
             onClick={toggleMute}
-            aria-label={muted ? "開啟音效" : "關閉音效"}
+            disabled={!config}
+            aria-label={muted ? "開啟音效與背景音樂" : "關閉音效與背景音樂"}
           >
-            {muted ? "🔇 音效關閉" : "🔊 音效開啟"}
+            {muted ? "🔇 聲音關閉" : "🔊 聲音開啟"}
           </button>
         </div>
       </header>
