@@ -173,5 +173,5 @@ http://localhost:5173/?avatarDebug=1
 `public/models/magic-garden-guide.vrm` 是魔法花園的 3D 引導角色，作者為 NHRI。模型會隨公開 GitHub 專案及 GitHub Pages 網站一併發布。
 
 預計公開網站為
-<https://root50643.github.io/magic-garden-yoga/>。部署前請依照
+<https://hplin50643.github.io/magic-garden-yoga/>。部署前請依照
 [GitHub Pages 部署手冊](docs/GITHUB_PAGES.md) 完成 Actions、Pages 與攝影機驗收；在工作流程實際執行成功前，該網址不代表已上線。
